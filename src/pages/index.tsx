@@ -14,7 +14,7 @@ export default function Home() {
   const [uploadStatus, setUploadStatus] = useState<string>("")
   const [file, setFile] = useState<File>();
 
-  const serverUrl = 'http://localhost:5500'
+  const serverUrl = 'https://hstvserver.azurewebsites.net'
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
