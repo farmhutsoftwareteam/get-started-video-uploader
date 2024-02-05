@@ -108,7 +108,7 @@ export default function Home() {
       <main >
       <div  className={styles.container}>
       <label className={styles.h1}>Select file to upload:</label>
-      <div>Select a video file up to 200MB in size to upload</div>
+      
       <br></br>
       <input  type="file" id="fileupload" onChange={handleFileChange} />
       <div  > {file && `${file.name} - ${file.type}`}</div>
