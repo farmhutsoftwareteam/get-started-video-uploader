@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { UploadCloud } from 'lucide-react';
 
 const Layout = ({ children }) => {
   return (
@@ -11,11 +12,10 @@ const Layout = ({ children }) => {
             </Link>
           </div>
           <div>
-            <Link legacyBehavior href="/about">
-              <a className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">About</a>
-            </Link>
-            <Link href="/contact">
-              <a className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+          <Link legacyBehavior href="/upload">
+              <a className="bg-red-500 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium ml-4 inline-flex items-center">
+                <UploadCloud className="mr-2" /> Upload New Video
+              </a>
             </Link>
             {/* Add more navigation links here */}
           </div>
