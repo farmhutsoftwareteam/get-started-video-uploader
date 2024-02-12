@@ -3,10 +3,11 @@ import styles from '@/styles/Home.module.css';
 import { ChangeEvent, useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
-import Layout from '../components/layout'
+import UploadModal from '../components/uploadModal';
 
 export default function Home() {
   const [videoList, setVideoList] = useState<Array<{ title: string; player: string; thumbnail: string; }>>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [nextBtnPage, setNextBtnPage] = useState<number>(1);
   const [prevBtnPage, setPrevBtnPage] = useState<number>(1);
@@ -18,8 +19,11 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null); // Initialize with null for clarity
   
 
-  const serverUrl = 'https://hstvserver.azurewebsites.net';
+  const serverUrl = process.env.SERVER_URL;
 
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);

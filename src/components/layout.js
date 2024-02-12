@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { UploadCloud } from 'lucide-react';
 
-const Layout = ({ children }) => {
+const Layout = ({ children ,toggleModal }) => {
   return (
     <>
       <nav className="bg-gray-800 p-4">
@@ -12,11 +12,12 @@ const Layout = ({ children }) => {
             </Link>
           </div>
           <div>
-          <Link legacyBehavior href="/upload">
-              <a className="bg-red-500 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium ml-4 inline-flex items-center">
-                <UploadCloud className="mr-2" /> Upload New Video
-              </a>
-            </Link>
+          <button
+          onClick={toggleModal}
+          className="bg-red-500 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium ml-4 inline-flex items-center"
+        >
+          <UploadCloud className="mr-2" /> Upload New Video
+        </button>
             {/* Add more navigation links here */}
           </div>
         </div>
