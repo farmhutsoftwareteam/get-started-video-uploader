@@ -1,9 +1,15 @@
 import Link from 'next/link';
 import { UploadCloud } from 'lucide-react';
+import Head from 'next/head';
 
 const Layout = ({ children ,toggleModal }) => {
   return (
     <>
+      <Head>
+        <title>Video Management Tool</title>
+        <meta name="description" content="Manage and upload your videos with ease." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
       <nav className="bg-gray-800 p-4">
         <div className="container mx-auto flex items-center justify-between">
           <div className="text-white">
