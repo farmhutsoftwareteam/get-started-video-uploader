@@ -17,7 +17,7 @@ const VideoDetailModal = ({ video, isOpen, onClose }) => {
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
-          const response = await axios.delete(`http://localhost:5500/video`, {
+          const response = await axios.delete(`https://hstvserver.azurewebsites.net/video`, {
             data: { videoId: video.videoId }
           });
           console.log(response.data); // For debugging

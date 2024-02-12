@@ -69,7 +69,7 @@ const UploadModal = ({ isOpen, onClose, onUpload }) => {
     }
   
     try {
-      const response = await axios.post(`http://localhost:5500/upload`, data, {
+      const response = await axios.post(`https://hstvserver.azurewebsites.net/upload`, data, {
         onUploadProgress: progressEvent => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setUploadProgress(percentCompleted);
