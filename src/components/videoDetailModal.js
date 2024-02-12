@@ -33,6 +33,8 @@ const VideoDetailModal = ({ video, isOpen, onClose }) => {
           setIsDeleting(false); // Stop loading if there's an error
         }
     };
+    const categoryMetadata = video.metadata.find(meta => meta.key === "categories");
+const category = categoryMetadata ? categoryMetadata.value : 'Uncategorized';
     
 
     return (
@@ -60,12 +62,12 @@ const VideoDetailModal = ({ video, isOpen, onClose }) => {
                   className="w-full md:w-1/2 h-64 md:h-auto"
                 />
                 <div className="space-y-2 w-full md:w-1/2">
-                  <h2 className="text-xl font-bold">{video.title}</h2>
-                  <p>{video.description || 'No description available.'}</p>
-                  <div>Category: <span>{video.category || 'Uncategorized'}</span></div>
-                  <div>Tags: <span>{video.tags?.join(', ') || 'None'}</span></div>
-                  <div>Posted on: <span>{new Date(video.publishedAt).toLocaleDateString()}</span></div>
-                </div>
+  <h2 className="text-xl font-bold">{video.title}</h2>
+  <p>{video.description || 'No description available.'}</p>
+  <div>Category: <span>{category}</span></div>
+  <div>Tags: <span>{video.tags?.join(', ') || 'None'}</span></div>
+  <div>Posted on: <span>{new Date(video.publishedAt).toLocaleDateString()}</span></div>
+</div>
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={handleEdit} className="px-4 py-2 bg-blue-500 text-white rounded">Edit</button>
