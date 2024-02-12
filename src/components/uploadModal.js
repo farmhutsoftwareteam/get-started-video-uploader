@@ -1,50 +1,90 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { UploadCloud } from 'lucide-react';
 
 const UploadModal = ({ isOpen, onClose, onUpload }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+  const [tags, setTags] = useState([]);
   const [file, setFile] = useState(null);
+  const [isPaid, setIsPaid] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false); // New state variable
-  const serverUrl = process.env.SERVER_URL;
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileName, setFileName] = useState('');
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setFileName(file.name);
+      setFile(file);
+    }
+  };
+
+  const handleCheckboxChange = (e) => {
+    setIsPaid(e.target.checked);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      const newTag = e.target.value.trim();
+      if (newTag && !tags.includes(newTag)) {
+        setTags([...tags, newTag]);
+      }
+      e.target.value = ''; // Clear the input
+    }
+  };
+
+  const removeTag = (indexToRemove) => {
+    setTags(tags.filter((_, index) => index !== indexToRemove));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUploadComplete(false);
     setUploadError('');
-    if (file) {
-      setIsUploading(true); // Start of upload
-      await handleUpload(file);
-      setIsUploading(false); // Reset after upload is done
-    }
-  };
-
-  const handleUpload = async (file) => {
+    setIsUploading(true);
+  
     const data = new FormData();
     data.append('file', file);
     data.append('title', title);
     data.append('description', description);
-
+    data.append('tags', tags.join(', ')); // Assuming tags are to be sent as a comma-separated string
+    
+    // Prepare metadata based on the condition
+    const metadata = [];
+    if (category) {
+      metadata.push({ key: "categories", value: category });
+    }
+    if (isPaid !== undefined) {
+      metadata.push({ key: "isPaid", value: String(isPaid) });
+    }
+    
+    // Only append metadata if it's not empty
+    if (metadata.length > 0) {
+      data.append('metadata', JSON.stringify(metadata));
+    }
+  
     try {
-      const response = await axios.post(`https://hstvserver.azurewebsites.net/upload`, data, {
+      const response = await axios.post(`http://localhost:5500/upload`, data, {
         onUploadProgress: progressEvent => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setUploadProgress(percentCompleted);
-        }
+        },
       });
       setUploadComplete(true);
       onUpload(response.data); // Pass the response data to the onUpload prop function
+      setIsUploading(false);
     } catch (error) {
       setUploadError(error.response ? error.response.data.message : error.message);
+      setIsUploading(false);
     }
   };
+  
+  
 
   if (!isOpen) return null;
 
@@ -53,7 +93,7 @@ const UploadModal = ({ isOpen, onClose, onUpload }) => {
       <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div className="mt-3 text-left">
           <h3 className="text-lg leading-6 font-medium text-gray-900">Upload New Video</h3>
-          <form onSubmit={handleSubmit} id="upload-form" className="flex flex-col items-start">
+          <form onSubmit={handleSubmit} className="flex flex-col items-start">
             <label htmlFor="title" className="mt-2">Title:</label>
             <input
               id="title"
@@ -71,15 +111,67 @@ const UploadModal = ({ isOpen, onClose, onUpload }) => {
               onChange={(e) => setDescription(e.target.value)}
               className="w-full h-28 px-3 py-2 bg-white border rounded-md text-sm shadow-sm placeholder-gray-400"
             />
-            <label htmlFor="file" className="mt-2">Video File:</label>
+             <div className="mt-4 w-full min-w-0">
+             <label
+  htmlFor="video-upload"
+  className="flex justify-center items-center w-full h-32 bg-white text-gray-400 border-2 border-gray-300 border-dashed rounded-md cursor-pointer"
+>
+  {fileName ? (
+    <span className="text-gray-700">{fileName}</span>
+  ) : (
+    <>
+      <UploadCloud size={24} />
+      <span className="ml-2">Drag files here or click to upload</span>
+    </>
+  )}
+</label>
+    <input
+      id="video-upload"
+      type="file"
+      accept="video/*"
+      onChange={handleFileChange}
+      className="hidden"
+    />
+  </div>
+            <label htmlFor="category" className="mt-2">Category:</label>
             <input
-              id="file"
-              type="file"
-              onChange={handleFileChange}
-              className="w-full px-3 py-2 bg-white border rounded-md text-sm shadow-sm"
+              id="category"
+              type="text"
+              placeholder="Enter category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-3 py-2 bg-white border rounded-md text-sm shadow-sm placeholder-gray-400"
             />
-            {!isUploading && ( // Conditionally render based on isUploading
-              <div className="flex justify-between items-center mt-4 w-full">
+            <label className="mt-2">Tags:</label>
+            <div className="flex flex-wrap items-center w-full mt-2">
+              {tags.map((tag, index) => (
+                <div key={index} className="flex items-center bg-gray-200 text-gray-800 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded dark:bg-gray-600 dark:text-gray-300">
+                  {tag}
+                  <button type="button" onClick={() => removeTag(index)} className="text-gray-400 ml-2 hover:text-gray-600 dark:hover:text-gray-300">
+                    &times;
+                  </button>
+                </div>
+              ))}
+              <input
+                type="text"
+                onKeyDown={handleKeyDown}
+                placeholder="Type and press space to add a tag"
+                className="flex-1 w-full px-3 py-2 min-w-0 bg-white border rounded-md text-sm shadow-sm placeholder-gray-400"
+              />
+            </div>
+            <div className="mt-4 flex items-center">
+              <label htmlFor="isPaid" className="inline-flex items-center">
+                <input
+                  id="isPaid"
+                  type="checkbox"
+                  checked={isPaid}
+                  onChange={handleCheckboxChange}
+                  className="form-checkbox h-5 w-5 text-blue-600"
+                /><span className="ml-2 text-gray-700">Is Paid Content?</span>
+              </label>
+            </div>
+            {!isUploading && (
+              <div className="flex justify-between items-center w-full mt-4">
                 <button
                   onClick={onClose}
                   className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700"
@@ -88,7 +180,6 @@ const UploadModal = ({ isOpen, onClose, onUpload }) => {
                 </button>
                 <button
                   type="submit"
-                  form="upload-form"
                   className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
                 >
                   Upload
