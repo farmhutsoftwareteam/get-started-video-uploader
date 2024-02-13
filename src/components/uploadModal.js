@@ -14,6 +14,9 @@ const UploadModal = ({ isOpen, onClose, onUpload }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [fileName, setFileName] = useState('');
+  const [showName, setShowName] = useState('');
+  const [episode, setEpisode] = useState('');
+  const [season, setSeason] = useState('');
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -54,16 +57,14 @@ const UploadModal = ({ isOpen, onClose, onUpload }) => {
     data.append('description', description);
     data.append('tags', tags.join(', ')); // Assuming tags are to be sent as a comma-separated string
     
-    // Prepare metadata based on the condition
+    // Prepare metadata, now including showName, episode, and season
     const metadata = [];
-    if (category) {
-      metadata.push({ key: "categories", value: category });
-    }
-    if (isPaid !== undefined) {
-      metadata.push({ key: "isPaid", value: String(isPaid) });
-    }
-    
-    // Only append metadata if it's not empty
+    if (category) metadata.push({ key: "categories", value: category });
+    if (isPaid !== undefined) metadata.push({ key: "isPaid", value: String(isPaid) });
+    if (showName) metadata.push({ key: "showName", value: showName });
+    if (episode) metadata.push({ key: "episode", value: episode });
+    if (season) metadata.push({ key: "season", value: season });
+
     if (metadata.length > 0) {
       data.append('metadata', JSON.stringify(metadata));
     }
@@ -84,7 +85,16 @@ const UploadModal = ({ isOpen, onClose, onUpload }) => {
     }
   };
   
+    // Generate options for episode and season dropdowns
+    const generateNumberOptions = (from, to) => {
+      let options = [];
+      for (let i = from; i <= to; i++) {
+        options.push(<option key={i} value={i}>{i}</option>);
+      }
+      return options;
+    };
   
+
 
   if (!isOpen) return null;
 
@@ -142,6 +152,35 @@ const UploadModal = ({ isOpen, onClose, onUpload }) => {
               onChange={(e) => setCategory(e.target.value)}
               className="w-full px-3 py-2 bg-white border rounded-md text-sm shadow-sm placeholder-gray-400"
             />
+            <label htmlFor="showName" className="mt-2">Show Name:</label>
+            <input
+              id="showName"
+              type="text"
+              placeholder="Enter show name"
+              value={showName}
+              onChange={(e) => setShowName(e.target.value)}
+              className="w-full px-3 py-2 bg-white border rounded-md text-sm shadow-sm placeholder-gray-400"
+            />
+            <label htmlFor="season" className="mt-2">Season:</label>
+            <select
+              id="season"
+              value={season}
+              onChange={(e) => setSeason(e.target.value)}
+              className="w-full px-3 py-2 bg-white border rounded-md text-sm shadow-sm placeholder-gray-400"
+            >
+              <option value="">Select season</option>
+              {generateNumberOptions(1, 20)}
+            </select>
+            <label htmlFor="episode" className="mt-2">Episode:</label>
+            <select
+              id="episode"
+              value={episode}
+              onChange={(e) => setEpisode(e.target.value)}
+              className="w-full px-3 py-2 bg-white border rounded-md text-sm shadow-sm placeholder-gray-400"
+            >
+              <option value="">Select episode</option>
+              {generateNumberOptions(1, 50)}
+            </select>
             <label className="mt-2">Tags:</label>
             <div className="flex flex-wrap items-center w-full mt-2">
               {tags.map((tag, index) => (
