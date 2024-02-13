@@ -66,6 +66,16 @@ const Home = () => {
     // Continue filtering for season, isPaid, etc., as needed
     setFilteredVideos(filtered);
   };
+  const resetFilters = () => {
+    // Reset filter states
+    setShowName('');
+    setSeason('');
+    setCategory('');
+    setIsPaid('');
+
+    // Reset filtered videos to show all videos
+    setFilteredVideos(videos);
+  };
 
   const seasonsOptions = Array.from({ length: 10 }, (_, i) => i + 1); // Example for seasons 1-10
   
@@ -140,6 +150,12 @@ const Home = () => {
       >
         Apply Filters
       </button>
+      <button
+          onClick={resetFilters}
+          className="px-4 py-2 bg-gray-500 text-white rounded-md shadow hover:bg-gray-700 focus:outline-none"
+        >
+          Remove Filters
+        </button>
     </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {loading ? (

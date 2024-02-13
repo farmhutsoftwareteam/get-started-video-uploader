@@ -13,17 +13,27 @@ const VideoDetailModal = ({ video, isOpen, onClose }) => {
         description: '',
         category: '',
         tags: '',
-        isPaid: false
+        isPaid: false,
+        showName: '',
+        season: '',
+        episode: ''
     });
 
     useEffect(() => {
         if (video) {
+            const metadata = video.metadata.reduce((acc, meta) => {
+                acc[meta.key] = meta.value;
+                return acc;
+            }, {});
             setEditFormData({
                 title: video.title || '',
                 description: video.description || '',
-                category: video.metadata.find(meta => meta.key === "categories")?.value || 'Uncategorized',
+                category: metadata.categories || 'Uncategorized',
                 tags: video.tags?.join(', ') || '',
-                isPaid: video.metadata.find(meta => meta.key === "isPaid")?.value === 'true'
+                isPaid: metadata.isPaid === 'true',
+                showName: metadata.showName || '',
+                season: metadata.season || '',
+                episode: metadata.episode || '',
             });
         }
     }, [video]);
@@ -51,36 +61,37 @@ const VideoDetailModal = ({ video, isOpen, onClose }) => {
     const handleSubmitEdit = async (e) => {
         e.preventDefault();
         setIsDeleting(true); // Using isDeleting state for loading indication during edit
-    
-        // Prepare tags, ensuring it's an array and filtering out empty strings
+
         const tagsArray = editFormData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
-    
+
         const updatedData = {
-            videoId: video.videoId, // Including videoId in the body
+            videoId: video.videoId,
             title: editFormData.title,
             description: editFormData.description,
-            tags: tagsArray, // Use the processed tagsArray
+            tags: tagsArray,
             metadata: [
                 { key: "categories", value: editFormData.category },
-                { key: "isPaid", value: String(editFormData.isPaid) }
+                { key: "isPaid", value: String(editFormData.isPaid) },
+                // Include new metadata for showName, season, and episode
+                { key: "showName", value: editFormData.showName },
+                { key: "season", value: editFormData.season },
+                { key: "episode", value: editFormData.episode },
             ]
         };
-    
+
         try {
-            // Using axios.put to send the update request. Adjust the endpoint as needed.
             await axios.put(`https://hstvserver.azurewebsites.net/video`, updatedData);
-            // If the update is successful, manage the state accordingly
             setEditSuccess(true);
             setTimeout(() => {
-                setIsDeleting(false); // Reset loading indication
-                setIsEditing(false); // Exit editing mode
-                setEditSuccess(false); // Reset success state
-                onClose(); // Close the modal
-                window.location.reload(); // Reload the page to reflect the changes
-            }, 2000); // Delay for UI/UX purposes
+                setIsDeleting(false);
+                setIsEditing(false);
+                setEditSuccess(false);
+                onClose();
+                window.location.reload();
+            }, 2000);
         } catch (error) {
             console.error("Failed to update the video", error);
-            setIsDeleting(false); // If there's an error, stop the loading indication
+            setIsDeleting(false);
         }
     };
     
@@ -114,6 +125,9 @@ const VideoDetailModal = ({ video, isOpen, onClose }) => {
                         <textarea name="description" value={editFormData.description} onChange={handleInputChange} className="w-full p-2 border rounded" placeholder="Description"></textarea>
                         <input name="category" value={editFormData.category} onChange={handleInputChange} className="w-full p-2 border rounded" placeholder="Category" />
                         <input name="tags" value={editFormData.tags} onChange={handleInputChange} className="w-full p-2 border rounded" placeholder="Tags (comma separated)" />
+                        <input name="showName" value={editFormData.showName} onChange={handleInputChange} className="w-full p-2 border rounded" placeholder="Show Name" />
+                        <input name="season" type="number" value={editFormData.season} onChange={handleInputChange} className="w-full p-2 border rounded" placeholder="Season" />
+                        <input name="episode" type="number" value={editFormData.episode} onChange={handleInputChange} className="w-full p-2 border rounded" placeholder="Episode" />
                         <label className="inline-flex items-center">
                             <input type="checkbox" name="isPaid" checked={editFormData.isPaid} onChange={handleInputChange} className="form-checkbox" />
                             <span className="ml-2">Is Paid Content?</span>
