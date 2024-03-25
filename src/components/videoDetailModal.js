@@ -88,7 +88,7 @@ const VideoDetailModal = ({ video, isOpen, onClose }) => {
                 setEditSuccess(false);
                 onClose();
                 window.location.reload();
-            }, 2000);
+            }, 1000);
         } catch (error) {
             console.error("Failed to update the video", error);
             setIsDeleting(false);
